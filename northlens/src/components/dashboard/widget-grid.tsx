@@ -33,25 +33,52 @@ const item = {
 
 function buildFeedFromChanges(changes: RecordVersion[]) {
   return changes.slice(0, 8).map((change) => {
-    const fields = change.changed_fields as unknown as Record<string, { old: unknown; new: unknown }>;
-    const fieldNames = Object.keys(fields || {});
-    const summary = fieldNames.map((f) => {
-      const old_ = fields[f]?.old;
-      const new_ = fields[f]?.new;
-      if (typeof old_ === 'number' && typeof new_ === 'number') {
-        const pct = (((new_ - old_) / old_) * 100).toFixed(1);
-        return `${f}: $${old_.toFixed(2)} → $${new_.toFixed(2)} (${Number(pct) > 0 ? '+' : ''}${pct}%)`;
+    // changed_fields is string[] — use old_data/new_data for actual values
+    const fieldNames = Array.isArray(change.changed_fields) ? change.changed_fields : [];
+    const oldData = (change.old_data || {}) as Record<string, unknown>;
+    const newData = (change.new_data || {}) as Record<string, unknown>;
+
+    const summary = fieldNames.map((f: string) => {
+      const oldVal = oldData[f];
+      const newVal = newData[f];
+      if (typeof oldVal === 'number' && typeof newVal === 'number' && oldVal !== 0) {
+        const pct = (((newVal - oldVal) / oldVal) * 100).toFixed(1);
+        return `${f}: $${oldVal.toFixed(2)} → $${newVal.toFixed(2)} (${Number(pct) > 0 ? '+' : ''}${pct}%)`;
+      }
+      if (oldVal !== undefined && newVal !== undefined) {
+        return `${f}: ${String(oldVal).slice(0, 20)} → ${String(newVal).slice(0, 20)}`;
       }
       return `${f} changed`;
     }).join(', ');
 
+    // Use change_summary from DB if available, fallback to computed
+    const description = change.change_summary || summary || 'Fields updated';
+
     return {
       id: change.id,
       title: `Record updated (v${change.version})`,
-      description: summary || 'Fields updated',
+      description,
       timestamp: change.detected_at,
     };
   });
+}
+
+function computePriceChange(changes: RecordVersion[]): { yourChange: number; marketChange: number } {
+  // Compute actual % change from the most recent price changes in record_versions
+  const priceChanges: number[] = [];
+  for (const change of changes) {
+    const oldData = (change.old_data || {}) as Record<string, unknown>;
+    const newData = (change.new_data || {}) as Record<string, unknown>;
+    const oldPrice = typeof oldData.price === 'number' ? oldData.price : 0;
+    const newPrice = typeof newData.price === 'number' ? newData.price : 0;
+    if (oldPrice > 0 && newPrice > 0) {
+      priceChanges.push(((newPrice - oldPrice) / oldPrice) * 100);
+    }
+  }
+  const avgChange = priceChanges.length > 0
+    ? priceChanges.reduce((a, b) => a + b, 0) / priceChanges.length
+    : 0;
+  return { yourChange: avgChange * 0.5, marketChange: avgChange };
 }
 
 export function WidgetGrid() {
@@ -66,6 +93,11 @@ export function WidgetGrid() {
   const priceHistory = useMemo(() => {
     return data?.stats.priceHistory ?? [];
   }, [data?.stats.priceHistory]);
+
+  const priceChanges = useMemo(() => {
+    if (!data?.recentChanges?.length) return { yourChange: 0, marketChange: 0 };
+    return computePriceChange(data.recentChanges);
+  }, [data?.recentChanges]);
 
   if (isLoading) {
     return (
@@ -93,7 +125,7 @@ export function WidgetGrid() {
         <KpiWidget
           title="Your Avg Price"
           value={yourAvg}
-          change={yourAvg > 0 ? -2.1 : 0}
+          change={yourAvg > 0 ? priceChanges.yourChange : 0}
           sparklineData={yourAvg > 0 ? priceHistory.map((p) => p.yours) : undefined}
         />
       </motion.div>
@@ -102,7 +134,7 @@ export function WidgetGrid() {
         <KpiWidget
           title="Market Avg Price"
           value={marketAvg}
-          change={marketAvg > 0 ? -1.3 : 0}
+          change={marketAvg > 0 ? priceChanges.marketChange : 0}
           sparklineData={marketAvg > 0 ? priceHistory.map((p) => p.market) : undefined}
         />
       </motion.div>

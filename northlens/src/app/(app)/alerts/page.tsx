@@ -191,8 +191,29 @@ export default function AlertsPage() {
                     <div>
                       <p className="font-medium">{alert.name}</p>
                       <p className="text-sm text-muted-foreground">
-                        {JSON.stringify(alert.condition)}
+                        {(() => {
+                          const cond = alert.condition as Record<string, unknown> | null;
+                          if (!cond) return 'No condition set';
+                          const field = cond.field || 'field';
+                          const op = cond.operator || 'changed';
+                          const val = cond.value;
+                          const opLabels: Record<string, string> = {
+                            gt: '>', lt: '<', eq: '=', ne: '≠', gte: '≥', lte: '≤',
+                            changed: 'changes', pct_change_gt: 'changes by more than',
+                            contains: 'contains', starts_with: 'starts with',
+                          };
+                          const opLabel = opLabels[String(op)] || String(op);
+                          if (op === 'changed') return `When "${field}" ${opLabel}`;
+                          if (op === 'pct_change_gt') return `When "${field}" ${opLabel} ${cond.threshold || val}%`;
+                          return `When "${field}" ${opLabel} ${val}`;
+                        })()}
                       </p>
+                      {alert.trigger_count > 0 && (
+                        <p className="text-xs text-muted-foreground/50 mt-0.5">
+                          Triggered {alert.trigger_count} time{alert.trigger_count !== 1 ? 's' : ''}
+                          {alert.last_triggered_at && ` · Last: ${formatRelativeTime(alert.last_triggered_at)}`}
+                        </p>
+                      )}
                     </div>
                     <div className="flex items-center gap-2">
                       <Switch

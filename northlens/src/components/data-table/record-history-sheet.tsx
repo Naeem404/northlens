@@ -73,8 +73,12 @@ export function RecordHistorySheet({ open, onOpenChange, recordId, recordData }:
                 {/* Timeline line */}
                 <div className="absolute left-3 top-0 h-full w-px bg-border" />
 
-                {versions.map((version, i) => {
-                  const changes = version.changed_fields as unknown as Record<string, { old: unknown; new: unknown }>;
+                {versions.map((version) => {
+                  // changed_fields is string[] — use old_data/new_data for values
+                  const fieldNames = Array.isArray(version.changed_fields) ? version.changed_fields : [];
+                  const oldData = (version.old_data || {}) as Record<string, unknown>;
+                  const newData = (version.new_data || {}) as Record<string, unknown>;
+
                   return (
                     <div key={version.id} className="relative pl-8">
                       {/* Timeline dot */}
@@ -90,11 +94,15 @@ export function RecordHistorySheet({ open, onOpenChange, recordId, recordData }:
                           </span>
                         </div>
 
-                        {changes && Object.keys(changes).length > 0 ? (
+                        {version.change_summary && (
+                          <p className="text-xs text-muted-foreground/70 mb-2 italic">{version.change_summary}</p>
+                        )}
+
+                        {fieldNames.length > 0 ? (
                           <div className="space-y-1.5">
-                            {Object.entries(changes).map(([field, change]) => {
-                              const oldVal = change?.old;
-                              const newVal = change?.new;
+                            {fieldNames.map((field: string) => {
+                              const oldVal = oldData[field];
+                              const newVal = newData[field];
                               const isNumeric = typeof oldVal === 'number' && typeof newVal === 'number';
                               const isIncrease = isNumeric && (newVal as number) > (oldVal as number);
 
