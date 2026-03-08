@@ -17,9 +17,23 @@ export default function PipelinesPage() {
   const deletePipeline = useDeletePipeline();
 
   function handleRun(id: string) {
+    toast.info('Pipeline running — extracting data from sources...');
     runPipeline.mutate(id, {
-      onSuccess: () => toast.success('Pipeline run started'),
-      onError: (err) => toast.error(err.message),
+      onSuccess: (result: any) => {
+        if (result?.status === 'completed') {
+          const parts: string[] = [];
+          if (result.records_new > 0) parts.push(`${result.records_new} new`);
+          if (result.records_updated > 0) parts.push(`${result.records_updated} updated`);
+          if (result.records_unchanged > 0) parts.push(`${result.records_unchanged} unchanged`);
+          if (result.errors > 0) parts.push(`${result.errors} source errors`);
+          toast.success(`Pipeline complete: ${parts.join(', ') || 'No records found'} (${result.records_total || 0} total)`);
+        } else if (result?.status === 'error') {
+          toast.error(`Pipeline run failed: ${result.errors || 'unknown'} source(s) errored`);
+        } else {
+          toast.success('Pipeline run finished');
+        }
+      },
+      onError: (err) => toast.error(`Pipeline run failed: ${err.message}`),
     });
   }
 
