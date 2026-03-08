@@ -1,6 +1,7 @@
 'use client';
 
 import { WidgetGrid } from '@/components/dashboard/widget-grid';
+import { OnboardingChecklist } from '@/components/dashboard/onboarding-checklist';
 import { motion } from 'framer-motion';
 import { TrendingUp, Compass } from 'lucide-react';
 import { useProfile } from '@/hooks/use-profile';
@@ -82,6 +83,7 @@ export default function DashboardPage() {
           />
         </motion.div>
 
+        <OnboardingChecklist />
         <WidgetGrid />
       </div>
     </div>
