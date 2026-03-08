@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useCreatePipeline } from '@/hooks/use-pipelines';
+import { useCreatePipeline, useRunPipeline } from '@/hooks/use-pipelines';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -16,9 +16,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Trash2, Pencil, Plus, ArrowLeft, ArrowRight, Loader2, X, Sparkles } from 'lucide-react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Trash2, Pencil, Plus, ArrowLeft, ArrowRight, Loader2, X, Sparkles, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 import { useGenerateSchema } from '@/hooks/use-ai-chat';
+import { invokeFunction } from '@/lib/api';
 import type { PipelineField, PipelineSource } from '@/types/database';
 
 const placeholders = [
@@ -31,6 +40,7 @@ const placeholders = [
 export default function NewPipelinePage() {
   const router = useRouter();
   const createPipeline = useCreatePipeline();
+  const runPipeline = useRunPipeline();
   const generateSchema = useGenerateSchema();
 
   const [step, setStep] = useState(1);
@@ -44,8 +54,39 @@ export default function NewPipelinePage() {
   const [sources, setSources] = useState<PipelineSource[]>([]);
   const [sourceInput, setSourceInput] = useState('');
   const [schedule, setSchedule] = useState<'hourly' | 'daily' | 'weekly' | 'manual'>('daily');
-  const [mode, setMode] = useState<'list' | 'detail'>('list');
+  const [extraction_mode, setExtractionMode] = useState<'list' | 'detail'>('list');
   const [name, setName] = useState('');
+  const [previewData, setPreviewData] = useState<Record<string, unknown>[]>([]);
+  const [isPreviewing, setIsPreviewing] = useState(false);
+
+  async function handlePreviewExtract() {
+    if (sources.length === 0 || fields.length === 0) {
+      toast.error('Add at least one source URL and define your schema first');
+      return;
+    }
+    setIsPreviewing(true);
+    try {
+      const schemaForExtract = fields.map((f) => ({
+        name: f.name,
+        type: f.type === 'currency' ? 'number' : f.type === 'text' ? 'string' : f.type === 'rating' ? 'number' : f.type,
+        description: f.description || f.name,
+      }));
+      const result = await invokeFunction<{ records: Record<string, unknown>[]; source_url: string }>(
+        'ai-extract',
+        { url: sources[0].url, schema: schemaForExtract, mode: extraction_mode }
+      );
+      if (result.records && result.records.length > 0) {
+        setPreviewData(result.records.slice(0, 10));
+        toast.success(`Extracted ${result.records.length} records from ${sources[0].url}`);
+      } else {
+        toast.info('No records extracted. Try a different URL or adjust your schema.');
+      }
+    } catch (err) {
+      toast.error('Extraction preview failed. The URL may be unreachable or the schema may not match the page content.');
+    } finally {
+      setIsPreviewing(false);
+    }
+  }
 
   function addSource() {
     if (!sourceInput.trim()) return;
@@ -84,12 +125,19 @@ export default function NewPipelinePage() {
         schema: fields,
         sources,
         schedule,
-        mode,
+        extraction_mode,
       },
       {
-        onSuccess: () => {
-          toast.success('Pipeline created!');
-          router.push('/pipelines');
+        onSuccess: (data) => {
+          toast.success('Pipeline created! Starting first extraction...');
+          // Auto-trigger first extraction run
+          if (data?.id) {
+            runPipeline.mutate(data.id, {
+              onSuccess: () => toast.success('Extraction started — data will appear in Tables shortly'),
+              onError: () => toast.info('Pipeline saved. Run extraction manually from the Pipelines page.'),
+            });
+          }
+          router.push(`/tables/${data?.id || ''}`);
         },
         onError: (err) => toast.error(err.message),
       }
@@ -256,10 +304,54 @@ export default function NewPipelinePage() {
             )}
             <div className="flex justify-between">
               <Button variant="ghost" onClick={() => setStep(2)}>Back</Button>
-              <Button onClick={() => setStep(4)}>
-                Next <ArrowRight className="ml-1 h-4 w-4" />
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={handlePreviewExtract}
+                  disabled={isPreviewing || sources.length === 0}
+                >
+                  {isPreviewing ? (
+                    <><Loader2 className="mr-1 h-4 w-4 animate-spin" /> Extracting...</>
+                  ) : (
+                    <><Eye className="mr-1 h-4 w-4" /> Test Extract</>
+                  )}
+                </Button>
+                <Button onClick={() => setStep(4)}>
+                  Next <ArrowRight className="ml-1 h-4 w-4" />
+                </Button>
+              </div>
             </div>
+
+            {/* Extraction Preview Table */}
+            {previewData.length > 0 && (
+              <div className="mt-4 space-y-2">
+                <p className="text-xs font-medium text-muted-foreground">Preview: {previewData.length} records extracted</p>
+                <div className="max-h-64 overflow-auto rounded-lg border border-border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        {fields.map((f) => (
+                          <TableHead key={f.name} className="text-xs whitespace-nowrap">{f.name}</TableHead>
+                        ))}
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {previewData.map((row, i) => (
+                        <TableRow key={i}>
+                          {fields.map((f) => (
+                            <TableCell key={f.name} className="text-xs max-w-[200px] truncate">
+                              {row[f.name] !== null && row[f.name] !== undefined
+                                ? f.type === 'currency' ? `$${Number(row[f.name]).toFixed(2)}` : String(row[f.name])
+                                : <span className="text-muted-foreground">—</span>}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
@@ -296,7 +388,7 @@ export default function NewPipelinePage() {
               </div>
               <div className="space-y-2">
                 <Label>Mode</Label>
-                <Select value={mode} onValueChange={(v) => v && setMode(v as typeof mode)}>
+                <Select value={extraction_mode} onValueChange={(v) => v && setExtractionMode(v as typeof extraction_mode)}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -343,7 +435,7 @@ export default function NewPipelinePage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Mode</span>
-                <span className="font-medium capitalize">{mode}</span>
+                <span className="font-medium capitalize">{extraction_mode}</span>
               </div>
             </div>
             <div className="flex flex-wrap gap-2">

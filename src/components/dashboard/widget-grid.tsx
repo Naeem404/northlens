@@ -46,7 +46,7 @@ function buildFeedFromChanges(changes: RecordVersion[]) {
       id: change.id,
       title: `Record updated (v${change.version})`,
       description: summary || 'Fields updated',
-      timestamp: change.created_at,
+      timestamp: change.detected_at,
     };
   });
 }

@@ -81,6 +81,10 @@ export function CommandPalette({ onOpenChat }: CommandPaletteProps) {
             <Bell className="mr-2 h-4 w-4" />
             Alerts
           </CommandItem>
+          <CommandItem onSelect={() => runAction(() => router.push('/briefs'))}>
+            <Search className="mr-2 h-4 w-4" />
+            Competitive Briefs
+          </CommandItem>
           <CommandItem onSelect={() => runAction(() => router.push('/sql'))}>
             <Terminal className="mr-2 h-4 w-4" />
             SQL Console

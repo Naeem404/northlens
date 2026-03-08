@@ -81,12 +81,20 @@ export default function ImportPage() {
   });
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/50 mb-1.5">Data Ingestion</p>
-        <h1 className="font-display text-2xl font-semibold tracking-tight italic">Import Data</h1>
+    <div className="relative min-h-[calc(100vh-3.25rem)] p-6 lg:p-8">
+      <div className="pointer-events-none absolute inset-0 brass-mesh opacity-30" />
+      <div className="relative z-10">
+      <div className="mb-8 flex items-start gap-4">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-chart-5/8 border border-chart-5/15">
+          <Upload className="h-5 w-5 text-chart-5" />
+        </div>
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/40 mb-1">Data Ingestion</p>
+          <h1 className="font-display text-[1.75rem] font-semibold tracking-tight italic leading-none">Import Data</h1>
+          <p className="mt-1.5 text-[13px] text-muted-foreground/60">Bring your own business data into NorthLens</p>
+        </div>
       </div>
-      <div className="brass-line mb-6" />
+      <div className="brass-line mb-8" />
 
       <Tabs defaultValue="csv">
         <TabsList>
@@ -257,6 +265,7 @@ export default function ImportPage() {
           </Card>
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 }

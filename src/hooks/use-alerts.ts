@@ -26,7 +26,7 @@ export function useAlertEvents() {
       const { data, error } = await getSupabase()
         .from('alert_events')
         .select('*')
-        .order('created_at', { ascending: false })
+        .order('triggered_at', { ascending: false })
         .limit(50);
       if (error) throw error;
       return data as AlertEvent[];
@@ -40,16 +40,14 @@ export function useCreateAlert() {
     mutationFn: async (alert: {
       pipeline_id: string;
       name: string;
-      field: string;
-      operator: Alert['operator'];
-      value: string;
+      condition: Record<string, unknown>;
     }) => {
       const { data: { user } } = await getSupabase().auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
       const { data, error } = await getSupabase()
         .from('alerts')
-        .insert({ ...alert, user_id: user.id, enabled: true })
+        .insert({ ...alert, user_id: user.id, is_active: true })
         .select()
         .single();
       if (error) throw error;
@@ -67,7 +65,7 @@ export function useToggleAlert() {
     mutationFn: async ({ alertId, enabled }: { alertId: string; enabled: boolean }) => {
       const { error } = await getSupabase()
         .from('alerts')
-        .update({ enabled })
+        .update({ is_active: enabled })
         .eq('id', alertId);
       if (error) throw error;
     },
@@ -99,7 +97,7 @@ export function useMarkAlertRead() {
     mutationFn: async (eventId: string) => {
       const { error } = await getSupabase()
         .from('alert_events')
-        .update({ read: true })
+        .update({ is_read: true })
         .eq('id', eventId);
       if (error) throw error;
     },

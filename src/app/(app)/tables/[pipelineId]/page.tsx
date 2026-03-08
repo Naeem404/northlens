@@ -35,6 +35,7 @@ import { Search, Download, ChevronLeft, ChevronRight, ArrowUpDown, Filter } from
 import { EmptyState } from '@/components/shared/empty-state';
 import { formatRelativeTime } from '@/lib/utils';
 import { toast } from 'sonner';
+import { RecordHistorySheet } from '@/components/data-table/record-history-sheet';
 import type { Json } from '@/types/database';
 
 export default function DataTablePage() {
@@ -46,6 +47,9 @@ export default function DataTablePage() {
   const [limit, setLimit] = useState(20);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedRecordId, setSelectedRecordId] = useState<string | null>(null);
+  const [selectedRecordData, setSelectedRecordData] = useState<Record<string, unknown> | null>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   const { data: recordsData, isLoading: recordsLoading } = useRecords(pipelineId, {
     page,
@@ -199,8 +203,19 @@ export default function DataTablePage() {
                 </TableCell>
               </TableRow>
             ) : (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
+              table.getRowModel().rows.map((row, rowIdx) => (
+                <TableRow
+                  key={row.id}
+                  className="cursor-pointer hover:bg-muted/30"
+                  onClick={() => {
+                    const record = recordsData?.records[rowIdx];
+                    if (record) {
+                      setSelectedRecordId(record.id);
+                      setSelectedRecordData(record.data as Record<string, unknown>);
+                      setHistoryOpen(true);
+                    }
+                  }}
+                >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -252,6 +267,14 @@ export default function DataTablePage() {
           </Button>
         </div>
       </div>
+
+      {/* Record History Sheet */}
+      <RecordHistorySheet
+        open={historyOpen}
+        onOpenChange={setHistoryOpen}
+        recordId={selectedRecordId}
+        recordData={selectedRecordData}
+      />
     </div>
   );
 }

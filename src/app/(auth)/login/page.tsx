@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader2 } from 'lucide-react';
@@ -33,79 +32,182 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden p-4">
-      {/* Cartographic atmosphere */}
-      <div className="pointer-events-none absolute inset-0 brass-mesh" />
-      <div className="pointer-events-none absolute inset-0 topo-pattern opacity-60" />
+    <div className="relative flex min-h-screen overflow-hidden">
+      {/* ═══ LAYERED ATMOSPHERE ═══ */}
+      <div className="pointer-events-none absolute inset-0 nebula" />
+      <div className="pointer-events-none absolute inset-0 topo-pattern opacity-40" />
+      <div className="pointer-events-none absolute inset-0 meridian-pattern opacity-20" />
+
+      {/* Drifting brass nebulae */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -left-[10%] top-[15%] h-[450px] w-[450px] rounded-full bg-primary/6 blur-[140px] animate-aurora" />
-        <div className="absolute -right-[8%] bottom-[10%] h-[350px] w-[350px] rounded-full bg-secondary/5 blur-[120px] animate-aurora" style={{ animationDelay: '5s' }} />
+        <div className="absolute -left-[15%] top-[10%] h-[500px] w-[500px] rounded-full bg-primary/5 blur-[160px] animate-aurora" />
+        <div className="absolute right-[-10%] bottom-[5%] h-[400px] w-[400px] rounded-full bg-secondary/4 blur-[140px] animate-aurora" style={{ animationDelay: '7s' }} />
+        <div className="absolute left-[40%] top-[-5%] h-[300px] w-[600px] rounded-full bg-chart-3/3 blur-[180px] animate-aurora" style={{ animationDelay: '3s' }} />
       </div>
 
-      <div className="relative z-10 w-full max-w-[400px] animate-reveal-up">
-        {/* Brass filigree top accent */}
-        <div className="brass-line mb-8" />
+      {/* ═══ LEFT PANEL — Cartographic illustration ═══ */}
+      <div className="hidden lg:flex lg:w-[55%] relative items-center justify-center p-12">
+        <div className="relative z-10 max-w-lg">
+          {/* Decorative compass rose — large */}
+          <div className="animate-scale-in stagger-1 mb-8">
+            <svg viewBox="0 0 120 120" className="mx-auto h-28 w-28 text-primary/20" fill="none" stroke="currentColor" strokeWidth="0.5">
+              <circle cx="60" cy="60" r="55" strokeDasharray="3 5" />
+              <circle cx="60" cy="60" r="45" strokeDasharray="1 3" opacity="0.5" />
+              <circle cx="60" cy="60" r="35" opacity="0.3" />
+              <line x1="60" y1="5" x2="60" y2="25" strokeWidth="1" opacity="0.6" />
+              <line x1="60" y1="95" x2="60" y2="115" strokeWidth="1" opacity="0.6" />
+              <line x1="5" y1="60" x2="25" y2="60" strokeWidth="1" opacity="0.6" />
+              <line x1="95" y1="60" x2="115" y2="60" strokeWidth="1" opacity="0.6" />
+              <path d="M60 20 L64 60 L60 65 L56 60 Z" fill="currentColor" opacity="0.15" />
+            </svg>
+          </div>
 
-        <Card className="glass-strong card-glow rounded-lg noise overflow-hidden">
-          <CardHeader className="relative z-10 space-y-4 text-center pb-2 pt-8 px-8">
-            {/* Instrument dial logo mark */}
-            <div className="mx-auto relative flex h-14 w-14 items-center justify-center">
-              <div className="absolute inset-0 rounded-full border border-primary/20" />
-              <div className="absolute inset-1 rounded-full border border-primary/10" />
-              <svg viewBox="0 0 32 32" className="h-7 w-7 text-primary" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <div className="animate-reveal-stagger stagger-2">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-primary/50 mb-3">
+              Cartographic Intelligence
+            </p>
+          </div>
+
+          <h2 className="animate-reveal-stagger stagger-3 font-display text-[2.8rem] font-semibold leading-[1.1] tracking-tight text-foreground/90 italic">
+            Navigate your<br />
+            <span className="text-primary text-glow">competitive</span><br />
+            landscape
+          </h2>
+
+          <div className="brass-line my-8 animate-reveal-stagger stagger-4" />
+
+          <p className="animate-reveal-stagger stagger-5 text-[15px] leading-relaxed text-muted-foreground max-w-md">
+            Extract competitor data from the open web. Unify it with your business metrics.
+            Get AI-powered recommendations that tell you exactly what to do.
+          </p>
+
+          <div className="animate-reveal-stagger stagger-6 mt-8 flex items-center gap-6 text-xs text-muted-foreground/50">
+            <div className="flex items-center gap-2">
+              <div className="h-1.5 w-1.5 rounded-full bg-success animate-breathe" />
+              <span className="font-mono">16 Edge Functions</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="h-1.5 w-1.5 rounded-full bg-primary animate-breathe" style={{ animationDelay: '1s' }} />
+              <span className="font-mono">Gemini 2.5 Pro</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="h-1.5 w-1.5 rounded-full bg-secondary animate-breathe" style={{ animationDelay: '2s' }} />
+              <span className="font-mono">Real-time</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ═══ RIGHT PANEL — Login form ═══ */}
+      <div className="flex w-full lg:w-[45%] items-center justify-center p-6 lg:p-12">
+        <div className="relative z-10 w-full max-w-[380px]">
+          {/* Logo mark */}
+          <div className="animate-needle mb-8 flex items-center gap-3">
+            <div className="relative flex h-10 w-10 items-center justify-center">
+              <div className="absolute inset-0 rounded-full border border-primary/25" />
+              <svg viewBox="0 0 32 32" className="h-5 w-5 text-primary" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <circle cx="16" cy="16" r="12" strokeDasharray="2 3" />
                 <path d="M16 4 L16 8 M16 24 L16 28 M4 16 L8 16 M24 16 L28 16" />
                 <path d="M16 12 L18 16 L16 20" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
-            <div className="space-y-1.5">
-              <h1 className="font-display text-[1.6rem] font-semibold tracking-tight leading-none italic">NorthLens</h1>
-              <CardDescription className="text-muted-foreground text-[13px]">Sign in to your instrument panel</CardDescription>
+            <div>
+              <h1 className="font-display text-xl font-semibold tracking-tight italic leading-none">NorthLens</h1>
+              <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/50 mt-0.5">Observatory</p>
             </div>
-          </CardHeader>
-          <CardContent className="px-8">
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="email" className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="bg-background/50"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="password" className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="bg-background/50"
-                />
-              </div>
-              <Button type="submit" className="w-full font-semibold" disabled={loading}>
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Enter Observatory
-              </Button>
-            </form>
-          </CardContent>
-          <CardFooter className="justify-center pb-8">
-            <p className="text-[13px] text-muted-foreground">
-              No account yet?{' '}
-              <Link href="/signup" className="font-medium text-primary hover:text-primary/80 transition-colors">
-                Register
-              </Link>
-            </p>
-          </CardFooter>
-        </Card>
+          </div>
 
-        <div className="brass-line mt-8" />
+          {/* Form card */}
+          <div className="animate-reveal-stagger stagger-2 relative rounded-xl glass-strong card-bezel noise overflow-hidden">
+            <div className="brass-edge" />
+            <div className="relative z-10 p-8">
+              <div className="mb-6">
+                <h2 className="text-lg font-semibold tracking-tight">Welcome back</h2>
+                <p className="text-[13px] text-muted-foreground mt-1">Sign in to access your instruments</p>
+              </div>
+
+              <form onSubmit={handleLogin} className="space-y-5">
+                <div className="space-y-1.5">
+                  <Label htmlFor="email" className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground/60">
+                    Email Address
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="you@company.ca"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="h-11 bg-background/40 border-border/60 focus:border-primary/50 focus:ring-primary/20 transition-all placeholder:text-muted-foreground/30"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="password" className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground/60">
+                    Password
+                  </Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="••••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="h-11 bg-background/40 border-border/60 focus:border-primary/50 focus:ring-primary/20 transition-all placeholder:text-muted-foreground/30"
+                  />
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full h-11 font-semibold tracking-wide text-[13px] bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 glow-primary"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-dial-spin" />
+                  ) : (
+                    <svg viewBox="0 0 16 16" className="mr-2 h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <circle cx="8" cy="8" r="6" strokeDasharray="2 2" />
+                      <path d="M8 5 L9.5 8 L8 11" strokeWidth="2" strokeLinecap="round" />
+                    </svg>
+                  )}
+                  Enter Observatory
+                </Button>
+              </form>
+
+              <div className="brass-line my-6" />
+
+              <div className="flex items-center justify-between text-[12px]">
+                <p className="text-muted-foreground/60">
+                  No account?{' '}
+                  <Link href="/signup" className="font-medium text-primary hover:text-primary/80 transition-colors">
+                    Register
+                  </Link>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Demo credentials */}
+          <button
+            type="button"
+            onClick={() => {
+              setEmail('demo@northlens.ca');
+              setPassword('demodemo123');
+              toast.info('Demo credentials loaded — click Enter Observatory');
+            }}
+            className="animate-reveal-stagger stagger-4 mt-4 w-full rounded-lg border border-dashed border-primary/20 bg-primary/3 px-4 py-2.5 text-[11px] text-primary/60 transition-all duration-300 hover:bg-primary/8 hover:border-primary/40 hover:text-primary/80 group"
+          >
+            <span className="font-mono">demo@northlens.ca</span>
+            <span className="mx-2 text-border">|</span>
+            <span className="font-mono">demodemo123</span>
+            <span className="ml-2 text-muted-foreground/40 group-hover:text-primary/50 transition-colors">&rarr; click to autofill</span>
+          </button>
+
+          {/* Bottom tagline */}
+          <p className="animate-reveal-stagger stagger-6 mt-8 text-center text-[10px] uppercase tracking-[0.2em] text-muted-foreground/30">
+            Enterprise intelligence for every Canadian business
+          </p>
+        </div>
       </div>
     </div>
   );

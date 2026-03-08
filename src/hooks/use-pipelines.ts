@@ -44,7 +44,7 @@ export function useCreatePipeline() {
       schema: Pipeline['schema'];
       sources: Pipeline['sources'];
       schedule: Pipeline['schedule'];
-      mode: Pipeline['mode'];
+      extraction_mode: Pipeline['extraction_mode'];
     }) => {
       const { data: { user } } = await getSupabase().auth.getUser();
       if (!user) throw new Error('Not authenticated');
@@ -67,7 +67,7 @@ export function useRunPipeline() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (pipelineId: string) => {
-      const { data, error } = await getSupabase().functions.invoke('run-pipeline', {
+      const { data, error } = await getSupabase().functions.invoke('pipeline-run', {
         body: JSON.stringify({ pipeline_id: pipelineId }),
       });
       if (error) throw error;

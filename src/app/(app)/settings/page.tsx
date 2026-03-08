@@ -26,23 +26,21 @@ export default function SettingsPage() {
   const supabase = createClient();
 
   const [form, setForm] = useState({
-    full_name: '',
     business_name: '',
     business_type: '',
     industry: '',
     location: '',
-    website: '',
+    website_url: '',
   });
 
   useEffect(() => {
     if (profile) {
       setForm({
-        full_name: profile.full_name || '',
         business_name: profile.business_name || '',
         business_type: profile.business_type || '',
         industry: profile.industry || '',
         location: profile.location || '',
-        website: profile.website || '',
+        website_url: profile.website_url || '',
       });
     }
   }, [profile]);
@@ -78,23 +76,13 @@ export default function SettingsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Full Name</Label>
-                <Input
-                  value={form.full_name}
-                  onChange={(e) => setForm({ ...form, full_name: e.target.value })}
-                  placeholder="Jane Doe"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Business Name</Label>
-                <Input
-                  value={form.business_name}
-                  onChange={(e) => setForm({ ...form, business_name: e.target.value })}
-                  placeholder="Northern Outdoor Co."
-                />
-              </div>
+            <div className="space-y-2">
+              <Label>Business Name</Label>
+              <Input
+                value={form.business_name}
+                onChange={(e) => setForm({ ...form, business_name: e.target.value })}
+                placeholder="Northern Outdoor Co."
+              />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -137,8 +125,8 @@ export default function SettingsPage() {
               <div className="space-y-2">
                 <Label>Website</Label>
                 <Input
-                  value={form.website}
-                  onChange={(e) => setForm({ ...form, website: e.target.value })}
+                  value={form.website_url}
+                  onChange={(e) => setForm({ ...form, website_url: e.target.value })}
                   placeholder="https://example.ca"
                 />
               </div>

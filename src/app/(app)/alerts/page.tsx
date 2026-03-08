@@ -43,7 +43,7 @@ export default function AlertsPage() {
     pipeline_id: '',
     name: '',
     field: '',
-    operator: 'gt' as const,
+    operator: 'gt',
     value: '',
   });
 
@@ -52,7 +52,11 @@ export default function AlertsPage() {
       toast.error('Please fill in all fields');
       return;
     }
-    createAlert.mutate(newAlert, {
+    createAlert.mutate({
+      pipeline_id: newAlert.pipeline_id,
+      name: newAlert.name,
+      condition: { field: newAlert.field, operator: newAlert.operator, value: newAlert.value },
+    }, {
       onSuccess: () => {
         toast.success('Alert created');
         setDialogOpen(false);
@@ -63,12 +67,21 @@ export default function AlertsPage() {
   }
 
   return (
-    <div className="p-6">
-      <div className="mb-6 flex items-end justify-between">
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/50 mb-1.5">Monitoring</p>
-          <h1 className="font-display text-2xl font-semibold tracking-tight italic">Alerts</h1>
-        </div>
+    <div className="relative min-h-[calc(100vh-3.25rem)] p-6 lg:p-8">
+      <div className="pointer-events-none absolute inset-0 brass-mesh opacity-30" />
+      <div className="relative z-10">
+      <div className="mb-8">
+        <div className="flex items-end justify-between">
+          <div className="flex items-start gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-warning/8 border border-warning/15">
+              <Bell className="h-5 w-5 text-warning" />
+            </div>
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/40 mb-1">Monitoring</p>
+              <h1 className="font-display text-[1.75rem] font-semibold tracking-tight italic leading-none">Alerts</h1>
+              <p className="mt-1.5 text-[13px] text-muted-foreground/60">Get notified when your competitive data changes</p>
+            </div>
+          </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger render={<Button />}>
             <Plus className="mr-2 h-4 w-4" />
@@ -178,12 +191,12 @@ export default function AlertsPage() {
                     <div>
                       <p className="font-medium">{alert.name}</p>
                       <p className="text-sm text-muted-foreground">
-                        {alert.field} {alert.operator} {alert.value}
+                        {JSON.stringify(alert.condition)}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
                       <Switch
-                        checked={alert.enabled}
+                        checked={alert.is_active}
                         onCheckedChange={(checked) => {
                           toggleAlert.mutate(
                             { alertId: alert.id, enabled: !!checked },
@@ -230,12 +243,12 @@ export default function AlertsPage() {
                     <div
                       key={event.id}
                       className={`rounded-md px-3 py-2 text-sm ${
-                        event.read ? 'opacity-60' : 'bg-muted/50'
+                        event.is_read ? 'opacity-60' : 'bg-muted/50'
                       }`}
                     >
-                      <p>{event.message}</p>
+                      <p>{event.summary}</p>
                       <p className="mt-0.5 text-xs text-muted-foreground">
-                        {formatRelativeTime(event.created_at)}
+                        {formatRelativeTime(event.triggered_at)}
                       </p>
                     </div>
                   ))}
@@ -244,6 +257,8 @@ export default function AlertsPage() {
             </ScrollArea>
           </Card>
         </div>
+      </div>
+      </div>
       </div>
     </div>
   );

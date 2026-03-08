@@ -1,5 +1,5 @@
-// This file will be provided by Agent 1 (Backend) with generated Supabase types.
-// Stub types below allow the frontend to compile independently.
+// NorthLens Database Types — matches actual Supabase schema
+// Updated to match the live database column names exactly
 
 export type Json =
   | string
@@ -15,14 +15,16 @@ export interface Database {
       profiles: {
         Row: {
           id: string;
-          email: string;
-          full_name: string | null;
+          email: string | null;
           business_name: string | null;
           business_type: string | null;
           industry: string | null;
           location: string | null;
-          website: string | null;
-          plan: string;
+          province: string | null;
+          website_url: string | null;
+          business_profile: Json | null;
+          plan: string | null;
+          onboarding_complete: boolean | null;
           created_at: string;
           updated_at: string;
         };
@@ -34,14 +36,17 @@ export interface Database {
           id: string;
           user_id: string;
           name: string;
+          description: string | null;
           prompt: string;
           schema: PipelineField[];
           sources: PipelineSource[];
+          extraction_mode: 'list' | 'detail';
           schedule: 'hourly' | 'daily' | 'weekly' | 'manual';
-          mode: 'list' | 'detail';
           status: 'active' | 'running' | 'error' | 'paused';
-          record_count: number;
           last_run_at: string | null;
+          last_run_status: string | null;
+          last_run_error: string | null;
+          record_count: number;
           created_at: string;
           updated_at: string;
         };
@@ -52,9 +57,14 @@ export interface Database {
         Row: {
           id: string;
           pipeline_id: string;
+          user_id: string;
           data: Record<string, Json>;
+          content_hash: string;
           source_url: string | null;
-          extracted_at: string;
+          version: number;
+          is_latest: boolean;
+          first_seen_at: string;
+          last_updated_at: string;
           created_at: string;
         };
         Insert: Omit<Database['public']['Tables']['records']['Row'], 'id' | 'created_at'>;
@@ -65,11 +75,14 @@ export interface Database {
           id: string;
           record_id: string;
           pipeline_id: string;
-          changed_fields: Record<string, { old: Json; new: Json }>;
           version: number;
-          created_at: string;
+          old_data: Json | null;
+          new_data: Json;
+          changed_fields: string[];
+          change_summary: string | null;
+          detected_at: string;
         };
-        Insert: Omit<Database['public']['Tables']['record_versions']['Row'], 'id' | 'created_at'>;
+        Insert: Omit<Database['public']['Tables']['record_versions']['Row'], 'id'>;
         Update: Partial<Database['public']['Tables']['record_versions']['Insert']>;
       };
       dashboards: {
@@ -77,7 +90,8 @@ export interface Database {
           id: string;
           user_id: string;
           name: string;
-          layout: DashboardWidget[];
+          layout: Json;
+          is_default: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -101,28 +115,31 @@ export interface Database {
         Row: {
           id: string;
           user_id: string;
-          pipeline_id: string;
+          pipeline_id: string | null;
           name: string;
-          field: string;
-          operator: 'eq' | 'neq' | 'gt' | 'lt' | 'gte' | 'lte' | 'contains';
-          value: string;
-          enabled: boolean;
+          condition: Json;
+          delivery_method: string | null;
+          delivery_config: Json | null;
+          is_active: boolean;
+          last_triggered_at: string | null;
+          trigger_count: number;
           created_at: string;
-          updated_at: string;
         };
-        Insert: Omit<Database['public']['Tables']['alerts']['Row'], 'id' | 'created_at' | 'updated_at'>;
+        Insert: Omit<Database['public']['Tables']['alerts']['Row'], 'id' | 'created_at' | 'trigger_count'>;
         Update: Partial<Database['public']['Tables']['alerts']['Insert']>;
       };
       alert_events: {
         Row: {
           id: string;
           alert_id: string;
-          record_id: string;
-          message: string;
-          read: boolean;
-          created_at: string;
+          user_id: string;
+          record_id: string | null;
+          summary: string;
+          data: Json | null;
+          is_read: boolean;
+          triggered_at: string;
         };
-        Insert: Omit<Database['public']['Tables']['alert_events']['Row'], 'id' | 'created_at'>;
+        Insert: Omit<Database['public']['Tables']['alert_events']['Row'], 'id' | 'triggered_at'>;
         Update: Partial<Database['public']['Tables']['alert_events']['Insert']>;
       };
       data_imports: {
@@ -130,22 +147,25 @@ export interface Database {
           id: string;
           user_id: string;
           name: string;
-          source_type: 'csv' | 'manual' | 'api';
+          source_type: 'csv' | 'manual' | 'api' | 'shopify';
           schema: PipelineField[];
           record_count: number;
           created_at: string;
+          updated_at: string;
         };
-        Insert: Omit<Database['public']['Tables']['data_imports']['Row'], 'id' | 'created_at' | 'record_count'>;
+        Insert: Omit<Database['public']['Tables']['data_imports']['Row'], 'id' | 'created_at' | 'updated_at' | 'record_count'>;
         Update: Partial<Database['public']['Tables']['data_imports']['Insert']>;
       };
       import_records: {
         Row: {
           id: string;
           import_id: string;
+          user_id: string;
           data: Record<string, Json>;
           created_at: string;
+          updated_at: string;
         };
-        Insert: Omit<Database['public']['Tables']['import_records']['Row'], 'id' | 'created_at'>;
+        Insert: Omit<Database['public']['Tables']['import_records']['Row'], 'id' | 'created_at' | 'updated_at'>;
         Update: Partial<Database['public']['Tables']['import_records']['Insert']>;
       };
     };

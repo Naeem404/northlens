@@ -34,11 +34,15 @@ export function ChartWidget({ title, type = 'line', data, xKey, lines }: ChartWi
   const lineConfigs = lines || [{ key: 'value', color: chartColors[0], label: 'Value' }];
 
   return (
-    <Card className="h-full card-glow border-border/40">
-      <CardContent className="p-5">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground/60 mb-4">
-          {title}
-        </p>
+    <Card className="h-full card-glow card-bezel overflow-hidden">
+      <div className="brass-edge" />
+      <CardContent className="relative z-10 p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="h-1 w-3 rounded-full bg-primary/30" />
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/50 text-engraved">
+            {title}
+          </p>
+        </div>
         <div className="h-60">
           <ResponsiveContainer width="100%" height="100%">
             {type === 'line' ? (

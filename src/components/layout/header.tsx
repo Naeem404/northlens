@@ -27,11 +27,9 @@ export function Header({ onOpenSearch, onOpenChat }: HeaderProps) {
   const { data: profile } = useProfile();
   const { data: exchangeRate } = useExchangeRate();
 
-  const initials = profile?.full_name
-    ? profile.full_name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
-    : profile?.business_name
-      ? profile.business_name[0].toUpperCase()
-      : 'U';
+  const initials = profile?.business_name
+    ? profile.business_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
+    : 'U';
 
   async function handleLogout() {
     await supabase.auth.signOut();

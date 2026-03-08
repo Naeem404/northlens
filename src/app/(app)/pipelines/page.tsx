@@ -31,18 +31,40 @@ export default function PipelinesPage() {
   }
 
   return (
-    <div className="p-6 lg:p-8">
-      <div className="mb-6 flex items-end justify-between">
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/50 mb-1.5">Data Collection</p>
-          <h1 className="font-display text-2xl font-semibold tracking-tight italic">Pipelines</h1>
+    <div className="relative min-h-[calc(100vh-3.25rem)] p-6 lg:p-8">
+      <div className="pointer-events-none absolute inset-0 brass-mesh opacity-40" />
+      <div className="relative z-10">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="mb-8"
+      >
+        <div className="flex items-end justify-between">
+          <div className="flex items-start gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-secondary/8 border border-secondary/15">
+              <RefreshCw className="h-5 w-5 text-secondary" />
+            </div>
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/40 mb-1">Data Collection</p>
+              <h1 className="font-display text-[1.75rem] font-semibold tracking-tight italic leading-none">Pipelines</h1>
+              <p className="mt-1.5 text-[13px] text-muted-foreground/60">
+                Manage your automated data extraction workflows
+              </p>
+            </div>
+          </div>
+          <Button onClick={() => router.push('/pipelines/new')} className="h-11 gap-2 px-6">
+            <Plus className="h-4 w-4" />
+            New Pipeline
+          </Button>
         </div>
-        <Button onClick={() => router.push('/pipelines/new')} size="sm" className="gap-1.5 font-semibold">
-          <Plus className="h-3.5 w-3.5" />
-          New Pipeline
-        </Button>
-      </div>
-      <div className="brass-line mb-6" />
+        <motion.div
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ delay: 0.4, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="brass-line mt-6 origin-left"
+        />
+      </motion.div>
 
       {isLoading ? (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -75,6 +97,7 @@ export default function PipelinesPage() {
           ))}
         </motion.div>
       )}
+      </div>
     </div>
   );
 }

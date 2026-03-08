@@ -14,6 +14,9 @@ import {
   Settings,
   ChevronsLeft,
   ChevronsRight,
+  FileText,
+  Radar,
+  GitCompare,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -24,6 +27,9 @@ const navItems = [
   { label: 'Tables', href: '/tables', icon: Table2 },
   { label: 'Import', href: '/import', icon: Download },
   { label: 'Alerts', href: '/alerts', icon: Bell },
+  { label: 'Briefs', href: '/briefs', icon: FileText },
+  { label: 'Anomalies', href: '/anomalies', icon: Radar },
+  { label: 'Compare', href: '/compare', icon: GitCompare },
   { label: 'SQL', href: '/sql', icon: Terminal },
 ];
 

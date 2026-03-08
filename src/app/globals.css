@@ -135,14 +135,13 @@
     scrollbar-color: hsl(30 6% 20%) transparent;
   }
 
-  /* Parchment glass — warm frosted instrument panel */
+  /* ═══ GLASS PANELS ═══ */
   .glass {
     background: hsl(30 8% 7% / 0.6);
     backdrop-filter: blur(20px) saturate(140%);
     -webkit-backdrop-filter: blur(20px) saturate(140%);
     border: 1px solid hsl(42 20% 20% / 0.25);
   }
-
   .glass-strong {
     background: hsl(30 8% 7% / 0.85);
     backdrop-filter: blur(28px) saturate(160%);
@@ -150,7 +149,7 @@
     border: 1px solid hsl(42 20% 22% / 0.3);
   }
 
-  /* Warm brass glow effects */
+  /* ═══ GLOW EFFECTS ═══ */
   .glow-primary {
     box-shadow: 0 0 20px hsl(42 88% 56% / 0.15), 0 0 60px hsl(42 88% 56% / 0.05);
   }
@@ -161,21 +160,30 @@
     box-shadow: 0 0 20px hsl(155 50% 42% / 0.15), 0 0 60px hsl(155 50% 42% / 0.05);
   }
 
-  /* Instrument card hover */
+  /* ═══ INSTRUMENT CARD ═══ */
   .card-glow {
-    transition: box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-                border-color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-                transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+                border-color 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .card-glow:hover {
-    box-shadow: 0 0 30px hsl(42 88% 56% / 0.06),
-                0 8px 24px hsl(30 10% 3% / 0.5),
-                inset 0 1px 0 hsl(42 30% 50% / 0.06);
-    border-color: hsl(42 20% 22% / 0.4);
-    transform: translateY(-1px);
+    box-shadow: 0 0 40px hsl(42 88% 56% / 0.08),
+                0 12px 32px hsl(30 10% 3% / 0.55),
+                inset 0 1px 0 hsl(42 30% 50% / 0.08);
+    border-color: hsl(42 30% 30% / 0.5);
+    transform: translateY(-2px);
   }
 
-  /* Topographic contour lines */
+  /* Raised bezel — engraved instrument feel */
+  .card-bezel {
+    box-shadow:
+      inset 0 1px 0 hsl(42 20% 25% / 0.12),
+      inset 0 -1px 0 hsl(30 10% 4% / 0.3),
+      0 1px 3px hsl(30 10% 3% / 0.4);
+    border: 1px solid hsl(30 6% 14%);
+  }
+
+  /* ═══ TOPOGRAPHIC PATTERNS ═══ */
   .topo-pattern {
     background-image:
       repeating-radial-gradient(
@@ -193,14 +201,10 @@
         transparent 54px
       );
   }
-
-  /* Dot pattern — survey grid */
   .dot-pattern {
     background-image: radial-gradient(circle, hsl(42 15% 25% / 0.15) 1px, transparent 1px);
     background-size: 20px 20px;
   }
-
-  /* Grid pattern — cartographic */
   .grid-pattern {
     background-image:
       linear-gradient(hsl(42 10% 18% / 0.15) 1px, transparent 1px),
@@ -208,7 +212,17 @@
     background-size: 48px 48px;
   }
 
-  /* Warm instrument mesh gradient */
+  /* Meridian lines — longitude/latitude grid */
+  .meridian-pattern {
+    background-image:
+      linear-gradient(hsl(42 10% 18% / 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(42 10% 18% / 0.06) 1px, transparent 1px),
+      linear-gradient(hsl(42 10% 18% / 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(42 10% 18% / 0.03) 1px, transparent 1px);
+    background-size: 96px 96px, 96px 96px, 24px 24px, 24px 24px;
+  }
+
+  /* ═══ ATMOSPHERIC GRADIENTS ═══ */
   .brass-mesh {
     background:
       radial-gradient(ellipse 70% 50% at 15% 45%, hsl(42 88% 56% / 0.04), transparent),
@@ -216,7 +230,26 @@
       radial-gradient(ellipse 45% 55% at 50% 85%, hsl(18 65% 55% / 0.025), transparent);
   }
 
-  /* Shimmer — brass gleam */
+  /* Cinematic vignette — focus draws inward */
+  .vignette::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 60% at 50% 50%, transparent 40%, hsl(30 10% 3% / 0.6) 100%);
+    pointer-events: none;
+    z-index: 50;
+  }
+
+  /* Warm nebula atmosphere for auth pages */
+  .nebula {
+    background:
+      radial-gradient(ellipse 50% 40% at 20% 60%, hsl(42 88% 56% / 0.06), transparent),
+      radial-gradient(ellipse 40% 50% at 80% 30%, hsl(172 42% 46% / 0.05), transparent),
+      radial-gradient(ellipse 60% 35% at 50% 80%, hsl(18 65% 55% / 0.04), transparent),
+      radial-gradient(ellipse 30% 60% at 70% 70%, hsl(260 35% 58% / 0.03), transparent);
+  }
+
+  /* ═══ SHIMMER & GLEAM ═══ */
   .shimmer {
     background: linear-gradient(
       110deg,
@@ -228,7 +261,19 @@
     animation: shimmer 3s ease-in-out infinite;
   }
 
-  /* Film grain / parchment texture */
+  /* Brass edge gleam — runs along top of cards */
+  .brass-edge::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, hsl(42 60% 55% / 0.35), transparent);
+    z-index: 1;
+  }
+
+  /* ═══ NOISE & TEXTURE ═══ */
   .noise::before {
     content: '';
     position: absolute;
@@ -239,12 +284,20 @@
     z-index: 0;
   }
 
-  /* Heading font utility */
+  /* ═══ TYPOGRAPHY ═══ */
   .font-display {
     font-family: var(--font-heading), var(--font-sans), serif;
   }
+  /* Engraved text — recessed into brass */
+  .text-engraved {
+    text-shadow: 0 1px 0 hsl(42 15% 18% / 0.3), 0 -1px 0 hsl(30 10% 3% / 0.4);
+  }
+  /* Glowing text — emissive */
+  .text-glow {
+    text-shadow: 0 0 12px hsl(42 88% 56% / 0.3), 0 0 40px hsl(42 88% 56% / 0.1);
+  }
 
-  /* Brass line accent — horizontal rule */
+  /* ═══ BRASS ACCENTS ═══ */
   .brass-line {
     height: 1px;
     background: linear-gradient(
@@ -256,13 +309,50 @@
       transparent
     );
   }
+  .brass-line-v {
+    width: 1px;
+    background: linear-gradient(
+      180deg,
+      transparent,
+      hsl(42 40% 35% / 0.4) 20%,
+      hsl(42 60% 50% / 0.5) 50%,
+      hsl(42 40% 35% / 0.4) 80%,
+      transparent
+    );
+  }
 
-  /* Instrument panel inset */
+  /* ═══ INSTRUMENT PANELS ═══ */
   .inset-panel {
     background: hsl(30 8% 6%);
     box-shadow:
       inset 0 1px 3px hsl(30 10% 3% / 0.6),
       0 1px 0 hsl(42 15% 18% / 0.1);
+  }
+
+  /* Gauge dial background */
+  .gauge-bg {
+    background:
+      radial-gradient(circle at 50% 50%, hsl(30 8% 10%) 0%, hsl(30 8% 6%) 70%);
+    box-shadow:
+      inset 0 0 30px hsl(30 10% 3% / 0.5),
+      0 0 1px hsl(42 20% 25% / 0.2);
+    border-radius: 50%;
+  }
+
+  /* Stagger delay utilities for orchestrated reveals */
+  .stagger-1 { animation-delay: 0.05s; }
+  .stagger-2 { animation-delay: 0.1s; }
+  .stagger-3 { animation-delay: 0.15s; }
+  .stagger-4 { animation-delay: 0.2s; }
+  .stagger-5 { animation-delay: 0.25s; }
+  .stagger-6 { animation-delay: 0.3s; }
+  .stagger-7 { animation-delay: 0.35s; }
+  .stagger-8 { animation-delay: 0.4s; }
+
+  /* Focus ring — brass-tinted */
+  .focus-brass:focus-visible {
+    outline: 2px solid hsl(42 88% 56% / 0.4);
+    outline-offset: 2px;
   }
 }
 
@@ -358,4 +448,84 @@
 
 .animate-dial-spin {
   animation: dial-spin 2s linear infinite;
+}
+
+/* Orchestrated reveal — staggered entrance */
+.animate-reveal-stagger {
+  animation: reveal-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Compass needle settle */
+@keyframes needle-settle {
+  0% { transform: rotate(-30deg); opacity: 0; }
+  40% { transform: rotate(8deg); }
+  70% { transform: rotate(-3deg); }
+  100% { transform: rotate(0deg); opacity: 1; }
+}
+.animate-needle {
+  animation: needle-settle 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Scale in from center */
+@keyframes scale-in {
+  from { transform: scale(0.92); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.animate-scale-in {
+  animation: scale-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Slide in from right */
+@keyframes slide-in-right {
+  from { transform: translateX(24px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+.animate-slide-right {
+  animation: slide-in-right 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Typewriter cursor blink */
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.animate-cursor {
+  animation: cursor-blink 1s step-end infinite;
+}
+
+/* Subtle breathing for live indicators */
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.15); opacity: 1; }
+}
+.animate-breathe {
+  animation: breathe 3s ease-in-out infinite;
+}
+
+/* Etched line drawing effect */
+@keyframes etch {
+  from { stroke-dashoffset: 100; }
+  to { stroke-dashoffset: 0; }
+}
+
+/* Selection highlight */
+::selection {
+  background: hsl(42 88% 56% / 0.25);
+  color: hsl(38 15% 95%);
+}
+
+/* Custom scrollbar for webkit */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(30 6% 22%);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(42 15% 30%);
 }

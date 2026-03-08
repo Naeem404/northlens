@@ -25,7 +25,7 @@ export function useRecords(pipelineId: string, options: UseRecordsOptions = {}) 
       if (sort) {
         query = query.order(sort.column, { ascending: sort.ascending });
       } else {
-        query = query.order('extracted_at', { ascending: false });
+        query = query.order('last_updated_at', { ascending: false });
       }
 
       const from = (page - 1) * limit;
