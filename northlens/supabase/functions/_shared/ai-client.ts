@@ -1,3 +1,4 @@
+// @ts-nocheck — Deno Edge Function shared module (runs on Supabase, not Next.js)
 // Wrapper around Google Gemini API for all AI operations in NorthLens.
 // Uses Gemini 2.5 Flash for fast operations (extraction, schema gen)
 // Uses Gemini 2.5 Pro for complex operations (chat, briefs, analysis)

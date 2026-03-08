@@ -1,3 +1,4 @@
+// @ts-nocheck — Deno Edge Function shared module (runs on Supabase, not Next.js)
 // Supabase client helpers for Edge Functions
 // Creates authenticated and admin clients for use in Deno Edge Functions
 

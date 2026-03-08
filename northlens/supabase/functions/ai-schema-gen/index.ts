@@ -1,3 +1,4 @@
+// @ts-nocheck — Deno Edge Function (runs on Supabase, not Next.js)
 import { corsHeaders } from '../_shared/cors.ts';
 import { getSupabaseClient } from '../_shared/supabase.ts';
 import { generateSchema } from '../_shared/extractor.ts';
