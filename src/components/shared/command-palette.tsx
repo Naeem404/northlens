@@ -19,10 +19,11 @@ import {
   Bell,
   Terminal,
   Settings,
-  Bot,
   Plus,
-  Search,
   Sparkles,
+  FileText,
+  Radar,
+  GitCompare,
 } from 'lucide-react';
 import { usePipelines } from '@/hooks/use-pipelines';
 
@@ -82,8 +83,16 @@ export function CommandPalette({ onOpenChat }: CommandPaletteProps) {
             Alerts
           </CommandItem>
           <CommandItem onSelect={() => runAction(() => router.push('/briefs'))}>
-            <Search className="mr-2 h-4 w-4" />
+            <FileText className="mr-2 h-4 w-4" />
             Competitive Briefs
+          </CommandItem>
+          <CommandItem onSelect={() => runAction(() => router.push('/anomalies'))}>
+            <Radar className="mr-2 h-4 w-4" />
+            Anomaly Scanner
+          </CommandItem>
+          <CommandItem onSelect={() => runAction(() => router.push('/compare'))}>
+            <GitCompare className="mr-2 h-4 w-4" />
+            Price Comparison
           </CommandItem>
           <CommandItem onSelect={() => runAction(() => router.push('/sql'))}>
             <Terminal className="mr-2 h-4 w-4" />

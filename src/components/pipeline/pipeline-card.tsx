@@ -36,7 +36,7 @@ export function PipelineCard({ pipeline, onView, onRun, onDelete }: PipelineCard
     : 'No sources';
 
   return (
-    <Card className="card-glow border-border/40 overflow-hidden">
+    <Card className="card-glow card-bezel overflow-hidden relative">
       <CardHeader className="flex flex-row items-start justify-between pb-2">
         <div className="space-y-1">
           <CardTitle className="text-base font-semibold tracking-tight">{pipeline.name}</CardTitle>
