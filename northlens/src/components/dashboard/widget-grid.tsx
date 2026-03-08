@@ -6,7 +6,10 @@ import { KpiWidget } from './kpi-widget';
 import { ChartWidget } from './chart-widget';
 import { FeedWidget } from './feed-widget';
 import { OpportunityWidget } from './opportunity-widget';
+import { MarketPositionWidget } from './market-position-widget';
+import { QueryTableWidget } from './query-table-widget';
 import { useDashboardData } from '@/hooks/use-dashboard-data';
+import { usePinnedQueries } from '@/hooks/use-saved-queries';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { RecordVersion } from '@/types/database';
 
@@ -53,6 +56,7 @@ function buildFeedFromChanges(changes: RecordVersion[]) {
 
 export function WidgetGrid() {
   const { data, isLoading } = useDashboardData();
+  const { data: pinnedQueries } = usePinnedQueries();
 
   const feedItems = useMemo(() => {
     if (!data?.recentChanges?.length) return [];
@@ -128,6 +132,10 @@ export function WidgetGrid() {
       )}
 
       <motion.div variants={item}>
+        <MarketPositionWidget />
+      </motion.div>
+
+      <motion.div variants={item}>
         <OpportunityWidget
           insight={
             totalRecords > 0
@@ -136,6 +144,13 @@ export function WidgetGrid() {
           }
         />
       </motion.div>
+
+      {/* Pinned SQL query tables */}
+      {pinnedQueries && pinnedQueries.length > 0 && pinnedQueries.map((pq) => (
+        <motion.div key={pq.id} variants={item} className="md:col-span-2 lg:col-span-3">
+          <QueryTableWidget query={pq} />
+        </motion.div>
+      ))}
 
       <motion.div variants={item} className={priceHistory.length > 0 ? 'md:col-span-2 lg:col-span-3' : 'md:col-span-2'}>
         <FeedWidget

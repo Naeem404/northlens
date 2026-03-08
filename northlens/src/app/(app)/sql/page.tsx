@@ -1,3 +1,4 @@
+// @ts-nocheck — dynamic SQL queries use untyped RPC calls
 'use client';
 
 import { useState } from 'react';
@@ -15,9 +16,12 @@ import {
 } from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
-import { Play, Loader2, Clock, Sparkles } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Play, Loader2, Clock, Sparkles, Save, Pin, PinOff, Trash2, FileText, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNlQuery } from '@/hooks/use-ai-chat';
+import { useSavedQueries, useSaveQuery, useDeleteQuery, useTogglePinQuery } from '@/hooks/use-saved-queries';
+import type { SavedQuery } from '@/types/database';
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react').then((m) => m.default), {
   ssr: false,
@@ -36,9 +40,43 @@ export default function SqlConsolePage() {
   const [columns, setColumns] = useState<string[]>([]);
   const [running, setRunning] = useState(false);
   const [executionTime, setExecutionTime] = useState<number | null>(null);
+  const [saveName, setSaveName] = useState('');
+  const [showSave, setShowSave] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(false);
   const nlQuery = useNlQuery();
+  const { data: savedQueries } = useSavedQueries();
+  const saveQuery = useSaveQuery();
+  const deleteQuery = useDeleteQuery();
+  const togglePin = useTogglePinQuery();
 
   const supabase = createClient();
+
+  const TEMPLATES = [
+    { name: 'All pipelines', sql: 'SELECT name, status, record_count, schedule, last_run_at FROM pipelines ORDER BY created_at DESC;' },
+    { name: 'Price comparison', sql: "SELECT data->>'name' as product, data->>'price' as price, data->>'source' as source, source_url FROM records WHERE pipeline_id IN (SELECT id FROM pipelines LIMIT 1) ORDER BY last_updated_at DESC LIMIT 25;" },
+    { name: 'Recent changes', sql: 'SELECT rv.version, rv.changed_fields, rv.change_summary, rv.detected_at FROM record_versions rv ORDER BY rv.detected_at DESC LIMIT 20;' },
+    { name: 'Price drops', sql: "SELECT rv.change_summary, rv.detected_at, r.source_url FROM record_versions rv JOIN records r ON r.id = rv.record_id WHERE rv.change_summary ILIKE '%drop%' OR rv.change_summary ILIKE '%decrease%' ORDER BY rv.detected_at DESC LIMIT 15;" },
+    { name: 'Import summary', sql: 'SELECT name, source_type, record_count, created_at FROM data_imports ORDER BY created_at DESC;' },
+    { name: 'Alert events', sql: "SELECT ae.summary, ae.is_read, ae.triggered_at, a.name as alert_name FROM alert_events ae JOIN alerts a ON a.id = ae.alert_id ORDER BY ae.triggered_at DESC LIMIT 20;" },
+  ];
+
+  async function handleSave() {
+    if (!saveName.trim() || !query.trim()) return;
+    try {
+      await saveQuery.mutateAsync({ name: saveName, sql_query: query, description: nlExplanation || '' });
+      toast.success('Query saved');
+      setSaveName('');
+      setShowSave(false);
+    } catch {
+      toast.error('Failed to save query');
+    }
+  }
+
+  function loadSaved(sq: SavedQuery) {
+    setQuery(sq.sql_query);
+    if (sq.description) setNlExplanation(sq.description);
+    toast.info(`Loaded: ${sq.name}`);
+  }
 
   async function handleNlQuery() {
     if (!nlQuestion.trim()) return;
@@ -188,7 +226,7 @@ export default function SqlConsolePage() {
       </Card>
 
       {/* Controls */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 flex-wrap">
         <Button onClick={handleRun} disabled={running || !query.trim()}>
           {running ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -197,8 +235,55 @@ export default function SqlConsolePage() {
           )}
           Run Query
         </Button>
+
+        {/* Save button */}
+        {!showSave ? (
+          <Button variant="outline" size="sm" onClick={() => setShowSave(true)} disabled={!query.trim()}>
+            <Save className="mr-2 h-3.5 w-3.5" />
+            Save
+          </Button>
+        ) : (
+          <div className="flex items-center gap-2">
+            <Input
+              value={saveName}
+              onChange={(e) => setSaveName(e.target.value)}
+              placeholder="Query name..."
+              className="h-8 w-48 text-sm"
+              onKeyDown={(e) => { if (e.key === 'Enter') handleSave(); if (e.key === 'Escape') setShowSave(false); }}
+              autoFocus
+            />
+            <Button size="sm" onClick={handleSave} disabled={!saveName.trim() || saveQuery.isPending}>
+              {saveQuery.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Save'}
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => setShowSave(false)}>Cancel</Button>
+          </div>
+        )}
+
+        {/* Templates dropdown */}
+        <div className="relative">
+          <Button variant="outline" size="sm" onClick={() => setShowTemplates(!showTemplates)}>
+            <FileText className="mr-2 h-3.5 w-3.5" />
+            Templates
+            <ChevronDown className="ml-1 h-3 w-3" />
+          </Button>
+          {showTemplates && (
+            <div className="absolute top-full left-0 mt-1 z-50 w-72 rounded-lg border border-border bg-popover shadow-lg">
+              {TEMPLATES.map((t, i) => (
+                <button
+                  key={i}
+                  onClick={() => { setQuery(t.sql); setShowTemplates(false); toast.info(`Template: ${t.name}`); }}
+                  className="block w-full text-left px-3 py-2 text-sm hover:bg-primary/5 transition-colors first:rounded-t-lg last:rounded-b-lg"
+                >
+                  <span className="font-medium">{t.name}</span>
+                  <span className="block text-[10px] font-mono text-muted-foreground/60 truncate mt-0.5">{t.sql.slice(0, 60)}...</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
         <kbd className="rounded border border-border bg-muted px-2 py-0.5 font-mono text-xs text-muted-foreground">
-          ⌘ Enter
+          Ctrl+Enter
         </kbd>
         {executionTime !== null && (
           <span className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -207,6 +292,53 @@ export default function SqlConsolePage() {
           </span>
         )}
       </div>
+
+      {/* Saved Queries */}
+      {savedQueries && savedQueries.length > 0 && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+              <Save className="h-3.5 w-3.5" />
+              Saved Queries ({savedQueries.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="divide-y divide-border/40">
+              {savedQueries.map((sq) => {
+                const isPinned = (sq.visualization_config as Record<string, unknown> | null)?.pinned_to_dashboard === true;
+                return (
+                  <div
+                    key={sq.id}
+                    className="flex items-center justify-between px-4 py-2 hover:bg-primary/3 transition-colors cursor-pointer group"
+                    onClick={() => loadSaved(sq)}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium truncate">{sq.name}</p>
+                      <p className="text-[10px] font-mono text-muted-foreground/50 truncate">{sq.sql_query.slice(0, 80)}</p>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); togglePin.mutate({ id: sq.id, pinned: !isPinned }); }}
+                        className={`rounded p-1 hover:bg-primary/10 ${isPinned ? 'text-primary' : 'text-muted-foreground/40'}`}
+                        title={isPinned ? 'Unpin from dashboard' : 'Pin to dashboard'}
+                      >
+                        {isPinned ? <PinOff className="h-3.5 w-3.5" /> : <Pin className="h-3.5 w-3.5" />}
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); deleteQuery.mutate(sq.id); toast.success('Deleted'); }}
+                        className="rounded p-1 text-muted-foreground/40 hover:text-destructive hover:bg-destructive/10"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                    {isPinned && <Badge variant="secondary" className="text-[8px] ml-2 shrink-0">DASHBOARD</Badge>}
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Results */}
       {results !== null && (
