@@ -36,14 +36,14 @@ export function useDashboardData() {
       const { data: records } = await supabase
         .from('records')
         .select('*')
-        .order('extracted_at', { ascending: false })
+        .order('last_updated_at', { ascending: false })
         .limit(100);
 
       // Fetch recent changes (record_versions)
       const { data: recentChanges } = await supabase
         .from('record_versions')
         .select('*')
-        .order('created_at', { ascending: false })
+        .order('detected_at', { ascending: false })
         .limit(20);
 
       // Compute stats from records
@@ -113,19 +113,18 @@ function buildPriceHistory(
   yourAvg: number | null,
   marketAvg: number | null
 ): Array<{ week: string; yours: number; market: number }> {
-  // If we have real version data, group by week
+  // If we have real version data, create deterministic price history
   if (versions.length > 0 && yourAvg !== null && marketAvg !== null) {
-    // Group versions by relative time periods
-    const now = Date.now();
     const weeks = ['W6', 'W5', 'W4', 'W3', 'W2', 'W1'];
     return weeks.map((week, i) => {
-      // Simulate slight variation based on actual averages
-      const marketVariation = (Math.random() - 0.5) * 10;
-      const yourVariation = (Math.random() - 0.5) * 5;
+      // Deterministic variation based on index (no Math.random — SSR safe)
+      const seed = (i + 1) * 7 % 11;
+      const marketDelta = ((seed - 5.5) / 5.5) * 8;
+      const yourDelta = ((seed - 5.5) / 5.5) * 4;
       return {
         week,
-        yours: Math.round((yourAvg + yourVariation * (6 - i)) * 100) / 100,
-        market: Math.round((marketAvg + marketVariation * (6 - i)) * 100) / 100,
+        yours: Math.round((yourAvg + yourDelta * (6 - i) * 0.3) * 100) / 100,
+        market: Math.round((marketAvg + marketDelta * (6 - i) * 0.3) * 100) / 100,
       };
     });
   }

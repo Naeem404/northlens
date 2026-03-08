@@ -14,7 +14,7 @@ export function OpportunityWidget({ insight, onExplore }: OpportunityWidgetProps
     <Card className="group relative h-full overflow-hidden card-glow card-bezel border-l-2 border-l-primary/40">
       {/* Atmospheric glow */}
       <div className="brass-edge" />
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/4 via-transparent to-secondary/2" />
+      <div className="pointer-events-none absolute inset-0 bg-linear-to-br from-primary/4 via-transparent to-secondary/2" />
       <div className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full bg-primary/6 blur-3xl transition-all duration-700 group-hover:bg-primary/10" />
 
       <CardContent className="relative z-10 p-5 space-y-4">

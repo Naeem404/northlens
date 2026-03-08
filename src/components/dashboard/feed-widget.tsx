@@ -51,7 +51,7 @@ export function FeedWidget({ title, items }: FeedWidgetProps) {
                   <div className="mt-1 flex flex-col items-center gap-0.5">
                     <div className="h-2 w-2 rounded-full border border-primary/30 bg-primary/10 group-hover:bg-primary/20 transition-colors" />
                     {i < items.length - 1 && (
-                      <div className="w-px flex-1 bg-gradient-to-b from-border/30 to-transparent" />
+                      <div className="w-px flex-1 bg-linear-to-b from-border/30 to-transparent" />
                     )}
                   </div>
                   <div className="min-w-0 flex-1 pb-1">

@@ -54,6 +54,7 @@ export function useCreateImport() {
       // Insert all records
       const importRecords = records.map((record) => ({
         import_id: importData.id,
+        user_id: user.id,
         data: record,
       }));
 
