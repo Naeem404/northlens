@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
+import { invokeFunction } from '@/lib/api';
 import type { Record_, RecordVersion } from '@/types/database';
 
 function getSupabase() { return createClient(); }
@@ -65,11 +66,7 @@ export function useRecordSearch(pipelineId: string, query: string) {
   return useQuery({
     queryKey: ['record-search', pipelineId, query],
     queryFn: async () => {
-      const { data, error } = await getSupabase().functions.invoke('search-records', {
-        body: JSON.stringify({ pipeline_id: pipelineId, query }),
-      });
-      if (error) throw error;
-      return data as Record_[];
+      return invokeFunction<Record_[]>('search-records', { pipeline_id: pipelineId, query });
     },
     enabled: !!pipelineId && !!query && query.length > 2,
   });

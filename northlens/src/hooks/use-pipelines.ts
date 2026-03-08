@@ -1,6 +1,7 @@
 // @ts-nocheck — Supabase insert/update types resolve with real generated DB types from Agent 1
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
+import { invokeFunction } from '@/lib/api';
 import type { Pipeline } from '@/types/database';
 
 function getSupabase() { return createClient(); }
@@ -67,11 +68,7 @@ export function useRunPipeline() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (pipelineId: string) => {
-      const { data, error } = await getSupabase().functions.invoke('pipeline-run', {
-        body: JSON.stringify({ pipeline_id: pipelineId }),
-      });
-      if (error) throw error;
-      return data;
+      return invokeFunction('pipeline-run', { pipeline_id: pipelineId });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pipelines'] });

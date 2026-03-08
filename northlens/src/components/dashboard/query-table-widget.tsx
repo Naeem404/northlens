@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { invokeFunction } from '@/lib/api';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
@@ -34,9 +35,13 @@ export function QueryTableWidget({ query }: QueryTableWidgetProps) {
         return;
       }
 
-      const { data, error: fnError } = await supabase.functions.invoke('query-sql', {
-        body: JSON.stringify({ sql: query.sql_query }),
-      });
+      let data: any = null;
+      let fnError: any = null;
+      try {
+        data = await invokeFunction('query-sql', { sql: query.sql_query });
+      } catch (e) {
+        fnError = e;
+      }
 
       if (fnError) {
         // Fallback: try RPC

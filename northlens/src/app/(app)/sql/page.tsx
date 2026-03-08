@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { createClient } from '@/lib/supabase/client';
+import { invokeFunction } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -120,16 +121,16 @@ export default function SqlConsolePage() {
       } as never);
 
       if (rpcError) {
-        // Fallback: try the ai-nlq edge function approach
-        const { data: fnData, error: fnError } = await supabase.functions.invoke('query-sql', {
-          body: JSON.stringify({ sql: trimmed }),
-        });
-        if (fnError) {
-          errorMsg = fnError.message || rpcError.message;
-        } else if (fnData?.data) {
-          data = fnData.data;
-        } else if (fnData?.error) {
-          errorMsg = fnData.error;
+        // Fallback: try the query-sql edge function
+        try {
+          const fnData = await invokeFunction<any>('query-sql', { sql: trimmed });
+          if (fnData?.data) {
+            data = fnData.data;
+          } else if (fnData?.error) {
+            errorMsg = fnData.error;
+          }
+        } catch (fnErr: any) {
+          errorMsg = fnErr?.message || rpcError.message;
         }
       } else {
         data = rpcData as Record<string, unknown>[] | null;
